@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Scanner;
 import java.io.File;
 
@@ -10,6 +12,11 @@ public class Main {
 
         //выполнение задания из модуля Циклы и массивы
         int validateFileCount = 0; // Счетчик для корректных файлов
+
+        //проверка количества и длин строк в файле
+        int totalLines = 0;
+        int maxLength = Integer.MIN_VALUE;
+        int minLength = Integer.MAX_VALUE;
 
         while (true) {
             System.out.print("Введите путь к файлу: ");
@@ -28,6 +35,28 @@ public class Main {
                 validateFileCount++;
                 System.out.println("Путь указан верно.");
                 System.out.println("Это файл номер " + validateFileCount);
+            }
+
+            try {
+                FileReader fileReader = new FileReader(path);
+                BufferedReader reader =
+                        new BufferedReader(fileReader);
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    int length = line.length();
+                    if (length > 1024) {
+                        throw new RuntimeException("В файле есть строка длиной более 1024 символов!");
+                    }
+                    totalLines++;
+                    maxLength = Math.max(maxLength, length);
+                    minLength = Math.min(minLength, length);
+                }
+                reader.close();
+                System.out.println("Общее количество строк в файле: " + totalLines);
+                System.out.println("Длина самой длинной строки: " + maxLength);
+                System.out.println("Длина самой короткой строки: " + minLength);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
