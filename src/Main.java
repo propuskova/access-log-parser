@@ -18,6 +18,9 @@ public class Main {
         int maxLength = Integer.MIN_VALUE;
         int minLength = Integer.MAX_VALUE;
 
+        //создание экземпляра статистики
+        Statistics statistics = new Statistics();
+
         //проверка подсчета доли запросов от ботов
         int googleBotCount = 0;
         int yandexBotCount = 0;
@@ -51,7 +54,7 @@ public class Main {
                         throw new RuntimeException("В файле есть строка длиной более 1024 символов!");
                     }
 
-                    //подсчет количества строк
+                    //подсчет количества строк и мин-макс длины
                     totalLines++;
                     maxLength = Math.max(maxLength, length);
                     minLength = Math.min(minLength, length);
@@ -82,6 +85,15 @@ public class Main {
                             }
                         }
                     }
+
+                    //применение класса LogEntry для парсинга строки
+                    try {
+                        LogEntry logEntry = new LogEntry(line);
+                        statistics.addEntry(logEntry);     //подсчёт среднего объёма трафика сайта за час
+                    } catch (Exception e) {
+                        System.out.println("Ошибка парсинга строки: " + line);
+                        e.printStackTrace();
+                    }
                 }
                 reader.close();
                 System.out.println("Общее количество строк в файле: " + totalLines);
@@ -90,6 +102,13 @@ public class Main {
                     double yandexShare = (yandexBotCount * 100.0) / totalLines;
                     System.out.printf("Доля запросов от Googlebot: %.2f%%%n", googleShare);
                     System.out.printf("Доля запросов от YandexBot: %.2f%%%n", yandexShare);
+
+                    double trafficRate = statistics.getTrafficRate();
+                    System.out.println("Средний объем трафика в час: " + trafficRate);
+                    System.out.println("Мин время запроса: " + statistics.getMinTime());
+                    System.out.println("Макс время запроса: " + statistics.getMaxTime());
+
+
                 }
 
             } catch (Exception ex) {

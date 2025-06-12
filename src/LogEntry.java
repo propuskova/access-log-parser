@@ -1,10 +1,13 @@
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class LogEntry {
     private final String ipAddr;
-    private final LocalDateTime time;
+    private final OffsetDateTime time;
     private final HttpMethod method;
     private final String path;
     private final int responseCode;
@@ -21,7 +24,7 @@ public class LogEntry {
         return ipAddr;
     }
 
-    public LocalDateTime getTime() {
+    public OffsetDateTime getTime() {
         return time;
     }
 
@@ -57,7 +60,7 @@ public class LogEntry {
 
             String dateTimeRaw = logLine.substring(logLine.indexOf("[") + 1, logLine.indexOf("]")); //подстрока из скобок []
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);//форматирование в дату-время
-            this.time = LocalDateTime.parse(dateTimeRaw, formatter);
+            this.time = OffsetDateTime.parse(dateTimeRaw, formatter);
 
             String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);
             String method = methodAndPath.split(" ")[0];
