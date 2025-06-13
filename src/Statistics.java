@@ -13,7 +13,10 @@ public class Statistics {
 
     // Задание 1
     private Set<String> existingPages = new HashSet<>();//для существующий страниц
-    private Map<String, Integer> osCounts = new HashMap<>();
+    private Map<String, Integer> osCounts = new HashMap<>(); //количество ОС
+
+    private Set<String> missingPages = new HashSet<>();//несуществующие страницы
+    private Map<String, Integer> browserCounts = new HashMap<>(); //количество браузеров
 
 
     public Statistics() {
@@ -46,6 +49,17 @@ public class Statistics {
         // статистика ОС
         String os = entry.getUserAgent().getOs();
         osCounts.put(os, osCounts.getOrDefault(os, 0) + 1); //вставить либо добавить к значению ОС +1
+
+        //2
+        // Добавить адрес НЕсуществующей страницы (код 404)
+        if (responseCode == 404) {
+            missingPages.add(path);
+        }
+
+        // статистика браузеров
+        String browser = entry.getUserAgent().getBrowser();
+        browserCounts.put(browser, browserCounts.getOrDefault(browser, 0) + 1);//вставить либо добавить к значению браузера +1
+
     }
 
     //вычислить разницу между maxTime и minTime в часах
@@ -74,6 +88,16 @@ public class Statistics {
     //метод возвращающий статистику ОС
     public Map<String, Double> getOperatingSystemStats() {
         return normalizeMap(osCounts);
+    }
+
+    //метод возвращающий список всех несуществующих страниц
+    public Set<String> getMissingPages() {
+        return missingPages;
+    }
+
+    //метод возвращающий статистику браузеров
+    public Map<String, Double> getBrowserStats() {
+        return normalizeMap(browserCounts);
     }
 
     private Map<String, Double> normalizeMap(Map<String, Integer> map) {
