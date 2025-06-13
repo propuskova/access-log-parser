@@ -24,6 +24,11 @@ public class Statistics {
     private int errorRequests = 0;//ошибочные запросы
     private Map<String, Integer> visitsPerRealUser = new HashMap<>();//список посещений реальными пользователями
 
+    //задание 4
+    private Map<Long, Integer> visitsPerSecond = new HashMap<>();//список посещений за одну секунду
+    private Set<String> refererDomains = new HashSet<>();//список страниц со ссылками на текущий сайт
+
+
     public Statistics() {
         this.totalTraffic = 0;
         this.minTime = OffsetDateTime.MAX;
@@ -75,11 +80,30 @@ public class Statistics {
 
             String ip = entry.getIpAddr();
             visitsPerRealUser.put(ip, visitsPerRealUser.getOrDefault(ip, 0) + 1); //подсчет числа уникальных IP-адресов реальных пользователей.
+
+            //4
+            long second = entry.getTime().toEpochSecond();
+            visitsPerSecond.put(second, visitsPerSecond.getOrDefault(second, 0) + 1);
+
         }
 
         // подсчет ошибки 4xx или 5xx
         if (responseCode >= 400 && responseCode < 600) {
             errorRequests++; //передана строка с информацией о запросе с ошибочным кодом ответа.
+        }
+
+        //4
+        String referer = entry.getReferer();
+        if (referer != null && !referer.equals("-")) {
+            try {
+                String domain = new java.net.URL(referer).getHost();
+                if (domain.startsWith("www.")) {
+                    domain = domain.substring(4);
+                }
+                refererDomains.add(domain);
+            } catch (Exception e) {
+                System.out.println("error!");
+            }
         }
     }
 
@@ -148,5 +172,20 @@ public class Statistics {
     public double getAverageVisitsPerUser() {
         int users = visitsPerRealUser.size();
         return users == 0 ? 0 : (double) nonBotVisits / users;
+    }
+
+    //Метод расчёта пиковой посещаемости сайта (в секунду) - максимальное количество посещений для какой-то одной секунды.
+    public int getPeakVisitsPerSecond() {
+        return visitsPerSecond.values().stream().max(Integer::compareTo).orElse(0);
+    }
+
+    //Метод, возвращающий список сайтов, со страниц которых есть ссылки на текущий сайт.
+    public Set<String> getRefererDomains() {
+        return refererDomains;
+    }
+
+    //Метод расчёта максимальной посещаемости одним пользователем.
+    public int getMaxVisitsBySingleUser() {
+        return visitsPerRealUser.values().stream().max(Integer::compareTo).orElse(0);
     }
 }
