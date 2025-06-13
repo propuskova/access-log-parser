@@ -62,7 +62,7 @@ public class LogEntry {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);//форматирование в дату-время
             this.time = OffsetDateTime.parse(dateTimeRaw, formatter);
 
-            String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);
+            String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);//начиная с кавычки "
             String method = methodAndPath.split(" ")[0];
             this.method = parseMethod(method); //определение метода из enum
             this.path = methodAndPath.split(" ")[1]; //оставшаяся часть после пробела
@@ -82,6 +82,7 @@ public class LogEntry {
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при парсинге строки: " + logLine, e);
+            //System.out.println("Ошибка при парсинге строки: " + logLine);
             //e.printStackTrace(); //unreachable exception
         }
     }
