@@ -1,6 +1,7 @@
 public class UserAgent {
     private final String os;
     private final String browser;
+    private final String fullUserAgent;
 
     public String getOs() {
         return os;
@@ -12,6 +13,7 @@ public class UserAgent {
 
 
     public UserAgent(String userAgentString) {
+        this.fullUserAgent = userAgentString;
         String lower = userAgentString.toLowerCase();
         if (lower.contains("windows")) {
             os = "Windows";
@@ -36,5 +38,9 @@ public class UserAgent {
         } else {
             browser = "Other";
         }
+    }
+
+    public String getFullUserAgent () {
+        return fullUserAgent;
     }
 }

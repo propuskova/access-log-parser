@@ -15,9 +15,14 @@ public class Statistics {
     private Set<String> existingPages = new HashSet<>();//для существующий страниц
     private Map<String, Integer> osCounts = new HashMap<>(); //количество ОС
 
+    //Задание 2
     private Set<String> missingPages = new HashSet<>();//несуществующие страницы
     private Map<String, Integer> browserCounts = new HashMap<>(); //количество браузеров
 
+    //задание 3
+    private int nonBotVisits = 0;//не является ботом
+    private int errorRequests = 0;//ошибочные запросы
+    private Map<String, Integer> visitsPerRealUser = new HashMap<>();//список посещений реальными пользователями
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -60,6 +65,22 @@ public class Statistics {
         String browser = entry.getUserAgent().getBrowser();
         browserCounts.put(browser, browserCounts.getOrDefault(browser, 0) + 1);//вставить либо добавить к значению браузера +1
 
+        //3
+        //обработка реальных пользователей
+        String userAgent = entry.getUserAgent().getFullUserAgent().toLowerCase();
+        boolean isBot = userAgent.contains("bot"); //Бота можно распознать по слову “bot” внутри описания User-Agent
+
+        if (!isBot) {
+            nonBotVisits++;// не боты, реальные юзеры
+
+            String ip = entry.getIpAddr();
+            visitsPerRealUser.put(ip, visitsPerRealUser.getOrDefault(ip, 0) + 1); //подсчет числа уникальных IP-адресов реальных пользователей.
+        }
+
+        // подсчет ошибки 4xx или 5xx
+        if (responseCode >= 400 && responseCode < 600) {
+            errorRequests++; //передана строка с информацией о запросе с ошибочным кодом ответа.
+        }
     }
 
     //вычислить разницу между maxTime и minTime в часах
@@ -109,5 +130,23 @@ public class Statistics {
 
         map.forEach((key, value) -> result.put(key, (double)value / total));
         return result;
+    }
+
+    //Метод подсчёта среднего количества посещений сайта за час.
+    public double getAverageNonBotVisitsPerHour() {
+        long hours = Duration.between(minTime, maxTime).toHours();
+        return hours == 0 ? nonBotVisits : ((double) nonBotVisits / hours);
+    }
+
+    //Метод подсчёта среднего количества ошибочных запросов в час.
+    public double getAverageErrorRequestsPerHour() {
+        long hours = Duration.between(minTime, maxTime).toHours();
+        return hours == 0 ? errorRequests : ((double) errorRequests / hours);
+    }
+
+    //Метод расчёта средней посещаемости одним пользователем.
+    public double getAverageVisitsPerUser() {
+        int users = visitsPerRealUser.size();
+        return users == 0 ? 0 : (double) nonBotVisits / users;
     }
 }
