@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 
 public class LogEntry {
     private final String ipAddr;
-    private final OffsetDateTime time;
+    private final LocalDateTime time;
     private final HttpMethod method;
     private final String path;
     private final int responseCode;
@@ -24,7 +24,7 @@ public class LogEntry {
         return ipAddr;
     }
 
-    public OffsetDateTime getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
@@ -56,24 +56,35 @@ public class LogEntry {
     public LogEntry(String logLine) {
         try {
             String[] parts = logLine.split(" ");
+
             this.ipAddr = parts[0]; //первая часть - IP-адрес
 
-            String dateTimeRaw = logLine.substring(logLine.indexOf("[") + 1, logLine.indexOf("]")); //подстрока из скобок []
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);//форматирование в дату-время
-            this.time = OffsetDateTime.parse(dateTimeRaw, formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss", Locale.ENGLISH);//форматирование в дату-время
+            this.time = LocalDateTime.parse(parts[3].substring(1), formatter);
 
-            String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);//начиная с кавычки "
-            String method = methodAndPath.split(" ")[0];
-            this.method = parseMethod(method); //определение метода из enum
-            this.path = methodAndPath.split(" ")[1]; //оставшаяся часть после пробела
+            this.method = HttpMethod.valueOf(parts[5].substring(1));
+            this.path = (parts[6] + " " + parts[7]).substring(0, (parts[6] + " " + parts[7]).length()-1);
 
-            this.responseCode = Integer.parseInt(parts[parts.length - 4]); //4 с конца часть
-            this.responseSize = Integer.parseInt(parts[parts.length - 3]); //3 с конца чатсь, тк не отделена кавычками в строке
+            this.responseCode = Integer.parseInt(parts[8]);
+            this.responseSize = Integer.parseInt(parts[9]);
+            this.referer = parts[10].substring(1, parts[10].length()-1);
+
+            //String[] parts = logLine.split(" ");
+            //this.ipAddr = parts[0]; //первая часть - IP-адрес
+            //String dateTimeRaw = logLine.substring(logLine.indexOf("[") + 1, logLine.indexOf("]")); //подстрока из скобок []
+            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);//форматирование в дату-время
+            //this.time = OffsetDateTime.parse(dateTimeRaw, formatter);
+            //String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);//начиная с кавычки "
+            //String method = methodAndPath.split(" ")[0];
+            //this.method = parseMethod(method); //определение метода из enum
+            //this.path = methodAndPath.split(" ")[1]; //оставшаяся часть после пробела
+            //this.responseCode = Integer.parseInt(parts[parts.length - 4]); //4 с конца часть
+            //this.responseSize = Integer.parseInt(parts[parts.length - 3]); //3 с конца чатсь, тк не отделена кавычками в строке
 
             //определить положение кавычек для подстроки относительно строки
-            int refererStart = logLine.indexOf('"', logLine.indexOf("\"", logLine.indexOf("\"") + 1) + 1);
-            int refererEnd = logLine.indexOf('"', refererStart + 1);
-            this.referer = logLine.substring(refererStart + 1, refererEnd);
+            //int refererStart = logLine.indexOf('"', logLine.indexOf("\"", logLine.indexOf("\"") + 1) + 1);
+            //int refererEnd = logLine.indexOf('"', refererStart + 1);
+            //this.referer = logLine.substring(refererStart + 1, refererEnd);
 
             int userAgentStart = logLine.lastIndexOf('"', logLine.length() - 2);
             int userAgentEnd = logLine.length() - 1;

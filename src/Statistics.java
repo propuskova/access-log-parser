@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class Statistics {
     private int totalTraffic = 0;
-    private OffsetDateTime minTime;
-    private OffsetDateTime maxTime;
+    private LocalDateTime minTime;
+    private LocalDateTime maxTime;
 
     // Задание 1
     private Set<String> existingPages = new HashSet<>();//для существующий страниц
@@ -31,8 +31,8 @@ public class Statistics {
 
     public Statistics() {
         this.totalTraffic = 0;
-        this.minTime = OffsetDateTime.MAX;
-        this.maxTime = OffsetDateTime.MIN;
+        this.minTime = LocalDateTime.MAX;
+        this.maxTime = LocalDateTime.MIN;
     }
 
     //подсчёт среднего объёма трафика сайта за час
@@ -82,7 +82,7 @@ public class Statistics {
             visitsPerRealUser.put(ip, visitsPerRealUser.getOrDefault(ip, 0) + 1); //подсчет числа уникальных IP-адресов реальных пользователей.
 
             //4
-            long second = entry.getTime().toEpochSecond();
+            long second = entry.getTime().getSecond();//toEpochSecond()
             visitsPerSecond.put(second, visitsPerSecond.getOrDefault(second, 0) + 1);
 
         }
@@ -102,7 +102,7 @@ public class Statistics {
                 }
                 refererDomains.add(domain);
             } catch (Exception e) {
-                System.out.println("error!");
+                System.out.println("error for referer!");
             }
         }
     }
@@ -113,15 +113,15 @@ public class Statistics {
             return 0;
         }
 
-        long hours = Duration.between(minTime, maxTime).toHours();
+        long hours = Duration.between(maxTime, minTime).toHours();
         return hours == 0 ? totalTraffic : ((double) totalTraffic / hours); //проверка часов на 0 и деление на разницу времени
     }
 
-    public OffsetDateTime getMinTime() {
+    public LocalDateTime getMinTime() {
         return minTime;
     }
 
-    public OffsetDateTime getMaxTime() {
+    public LocalDateTime getMaxTime() {
         return maxTime;
     }
 
