@@ -69,27 +69,13 @@ public class LogEntry {
             this.responseSize = Integer.parseInt(parts[9]);
             this.referer = parts[10].substring(1, parts[10].length()-1);
 
-            //String[] parts = logLine.split(" ");
-            //this.ipAddr = parts[0]; //первая часть - IP-адрес
-            //String dateTimeRaw = logLine.substring(logLine.indexOf("[") + 1, logLine.indexOf("]")); //подстрока из скобок []
-            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);//форматирование в дату-время
-            //this.time = OffsetDateTime.parse(dateTimeRaw, formatter);
-            //String methodAndPath = logLine.substring(logLine.indexOf("\"") + 1);//начиная с кавычки "
-            //String method = methodAndPath.split(" ")[0];
-            //this.method = parseMethod(method); //определение метода из enum
-            //this.path = methodAndPath.split(" ")[1]; //оставшаяся часть после пробела
-            //this.responseCode = Integer.parseInt(parts[parts.length - 4]); //4 с конца часть
-            //this.responseSize = Integer.parseInt(parts[parts.length - 3]); //3 с конца чатсь, тк не отделена кавычками в строке
-
-            //определить положение кавычек для подстроки относительно строки
-            //int refererStart = logLine.indexOf('"', logLine.indexOf("\"", logLine.indexOf("\"") + 1) + 1);
-            //int refererEnd = logLine.indexOf('"', refererStart + 1);
-            //this.referer = logLine.substring(refererStart + 1, refererEnd);
-
-            int userAgentStart = logLine.lastIndexOf('"', logLine.length() - 2);
-            int userAgentEnd = logLine.length() - 1;
-            String userAgent = logLine.substring(userAgentStart + 1, userAgentEnd);
-            this.userAgent = new UserAgent(userAgent);
+            StringBuilder result = new StringBuilder();
+            int i = 11;
+            for (; i < parts.length - 1; i++) {
+                result.append(parts[i]).append(" ");
+            }
+            result.append(parts[i]);
+            this.userAgent = new UserAgent(result.substring(1, result.length()-1));
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при парсинге строки: " + logLine, e);
